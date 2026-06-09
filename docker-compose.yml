@@ -1,0 +1,28 @@
+services:
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/var/www/api
+      - /var/www/api/vendor   # vendor isolé dans le conteneur (perf WSL2)
+    env_file: .env
+    networks:
+      - esport
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/api
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - esport
+
+networks:
+  esport:
+    driver: bridge

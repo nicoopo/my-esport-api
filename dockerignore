@@ -1,0 +1,7 @@
+.git
+.env.local
+vendor/
+var/cache/
+var/log/
+docker/
+*.md
