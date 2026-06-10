@@ -65,3 +65,21 @@ composer-install: ## composer install
 
 composer-update: ## composer update
 	$(PHP) composer update
+
+
+# ============================================================
+# FRONTEND
+# ============================================================
+
+frontend-build: ## Build l'image Docker du frontend
+	$(DOCKER_COMPOSE) build frontend
+
+frontend-up: ## Démarre le conteneur frontend
+	$(DOCKER_COMPOSE) up -d frontend
+
+frontend-logs: ## Affiche les logs du frontend
+	$(DOCKER_COMPOSE) logs -f frontend
+
+
+start: ## Démarre tous les conteneurs (backend + frontend)
+	$(DOCKER_COMPOSE) up -d

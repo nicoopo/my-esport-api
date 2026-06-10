@@ -23,6 +23,19 @@ services:
     networks:
       - esport
 
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules   # node_modules isolé (perf WSL2)
+    networks:
+      - esport
+
 networks:
   esport:
     driver: bridge
