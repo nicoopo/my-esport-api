@@ -80,6 +80,15 @@ frontend-up: ## Démarre le conteneur frontend
 frontend-logs: ## Affiche les logs du frontend
 	$(DOCKER_COMPOSE) logs -f frontend
 
+frontend-shell: ## Ouvre un shell dans le conteneur frontend
+	$(FRONTEND) sh
+
+
+
+
+# ============================================================
+# GLOBAL
+# ============================================================
 
 start: ## Démarre tous les conteneurs (backend + frontend)
 	$(DOCKER_COMPOSE) up -d
