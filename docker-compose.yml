@@ -33,6 +33,8 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules   # node_modules isolé (perf WSL2)
+    environment:
+        - SYMFONY_API_URL=http://nginx:80
     networks:
       - esport
 

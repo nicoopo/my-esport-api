@@ -1,7 +1,6 @@
-// app/matches/page.tsx
-
 import { Match } from '@/types/match'
 import Image from 'next/image'
+import Link from 'next/link'
 
 async function getUpcomingMatches(game?: string): Promise<Match[]> {
     const params = new URLSearchParams()
@@ -9,7 +8,7 @@ async function getUpcomingMatches(game?: string): Promise<Match[]> {
 
     const res = await fetch(
         `${process.env.SYMFONY_API_URL}/api/matches/upcoming?${params.toString()}`,
-        { next: { revalidate: 60 } }
+        { cache: 'no-store' }
     )
 
     if (!res.ok) throw new Error('Impossible de charger les matchs')
@@ -18,31 +17,31 @@ async function getUpcomingMatches(game?: string): Promise<Match[]> {
 }
 
 const GAMES = [
-    { slug: '',          label: 'Tous',     color: 'text-white' },
-    { slug: 'lol',       label: 'LoL',      color: 'text-yellow-400' },
-    { slug: 'csgo',      label: 'CS2',      color: 'text-orange-400' },
-    { slug: 'valorant',  label: 'Valorant', color: 'text-pink-400' },
-    { slug: 'dota2',     label: 'Dota 2',   color: 'text-red-400' },
-    { slug: 'r6siege', label: 'R6', color: 'text-blue-400' },
-    { slug: 'rl', label: 'Rocket League', color: 'text-sky-400' },
+    { slug: '',         label: 'Tous',          color: 'text-white' },
+    { slug: 'lol',      label: 'LoL',           color: 'text-yellow-400' },
+    { slug: 'csgo',     label: 'CS2',           color: 'text-orange-400' },
+    { slug: 'valorant', label: 'Valorant',      color: 'text-pink-400' },
+    { slug: 'dota2',    label: 'Dota 2',        color: 'text-red-400' },
+    { slug: 'r6siege',  label: 'R6',            color: 'text-blue-400' },
+    { slug: 'rl',       label: 'Rocket League', color: 'text-sky-400' },
 ]
 
 const GAME_ACCENT: Record<string, string> = {
-    'LoL':            'border-yellow-500/40 bg-yellow-500/5',
-    'Counter-Strike': 'border-orange-500/40 bg-orange-500/5',
-    'Valorant':       'border-pink-500/40 bg-pink-500/5',
-    'Dota 2':         'border-red-500/40 bg-red-500/5',
-    'Rainbow 6 Siege':'border-blue-500/40 bg-blue-500/5',
-    'Rocket League': 'border-sky-500/40 bg-sky-500/5',
+    'LoL':             'border-yellow-500/40 bg-yellow-500/5',
+    'Counter-Strike':  'border-orange-500/40 bg-orange-500/5',
+    'Valorant':        'border-pink-500/40 bg-pink-500/5',
+    'Dota 2':          'border-red-500/40 bg-red-500/5',
+    'Rainbow 6 Siege': 'border-blue-500/40 bg-blue-500/5',
+    'Rocket League':   'border-sky-500/40 bg-sky-500/5',
 }
 
 const GAME_BADGE: Record<string, string> = {
-    'LoL':            'bg-yellow-500/20 text-yellow-300',
-    'Counter-Strike': 'bg-orange-500/20 text-orange-300',
-    'Valorant':       'bg-pink-500/20 text-pink-300',
-    'Dota 2':         'bg-red-500/20 text-red-300',
-    'Rainbow 6 Siege':'bg-blue-500/20 text-blue-300',
-    'Rocket League': 'bg-sky-500/20 text-sky-300',
+    'LoL':             'bg-yellow-500/20 text-yellow-300',
+    'Counter-Strike':  'bg-orange-500/20 text-orange-300',
+    'Valorant':        'bg-pink-500/20 text-pink-300',
+    'Dota 2':          'bg-red-500/20 text-red-300',
+    'Rainbow 6 Siege': 'bg-blue-500/20 text-blue-300',
+    'Rocket League':   'bg-sky-500/20 text-sky-300',
 }
 
 function formatDate(dateStr: string | null): string {
@@ -86,17 +85,20 @@ function TeamLogo({ url, name }: { url: string | null; name: string }) {
 }
 
 function MatchCard({ match }: { match: Match }) {
-    const [t1, t2] = match.opponents ?? []
-    const gameName  = match.videogame?.name ?? ''
-    const accent    = GAME_ACCENT[gameName] ?? 'border-slate-700 bg-slate-800/40'
-    const badge     = GAME_BADGE[gameName]  ?? 'bg-slate-700/50 text-slate-300'
-    const hasStream = match.streams_list?.length > 0
-    const isLive    = match.live?.supported
+    const [t1, t2]  = match.opponents ?? []
+    const gameName   = match.videogame?.name ?? ''
+    const accent     = GAME_ACCENT[gameName] ?? 'border-slate-700 bg-slate-800/40'
+    const badge      = GAME_BADGE[gameName]  ?? 'bg-slate-700/50 text-slate-300'
+    const hasStream  = match.streams_list?.length > 0
+    const isLive     = match.live?.supported
 
     return (
-        <div className={`rounded-xl border ${accent} px-5 py-4 flex items-center gap-4 hover:brightness-110 transition-all`}>
-
-            {/* Jeu + ligue */}
+        <Link
+            href={`/matches/${match.id}`}
+            className={`rounded-xl border ${accent} px-5 py-4 flex items-center gap-4
+                        hover:brightness-110 hover:scale-[1.01] transition-all`}
+        >
+            {/* Jeu + tier */}
             <div className="hidden sm:flex flex-col items-center gap-1 w-20 shrink-0">
                 <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${badge}`}>
                     {gameName}
@@ -141,7 +143,7 @@ function MatchCard({ match }: { match: Match }) {
                     )}
                 </div>
             </div>
-        </div>
+        </Link>
     )
 }
 
@@ -154,52 +156,50 @@ export default async function MatchesPage({
     const matches  = await getUpcomingMatches(game)
 
     return (
-        <main className="min-h-screen bg-[#0d0f14] text-white">
-            <div className="max-w-4xl mx-auto px-4 py-10">
+        <div className="max-w-4xl mx-auto px-4 py-10">
 
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight text-white">
-                        Matchs à venir
-                    </h1>
-                    <p className="text-slate-400 mt-1 text-sm">
-                        {matches.length} match{matches.length > 1 ? 's' : ''} programmé{matches.length > 1 ? 's' : ''}
-                    </p>
-                </div>
-
-                {/* Filtres */}
-                <div className="flex flex-wrap gap-2 mb-6">
-                    {GAMES.map(({ slug, label, color }) => {
-                        const active = (game ?? '') === slug
-                        return (
-                            <a
-                                key={slug}
-                                href={slug ? `/matches?game=${slug}` : '/matches'}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all
-                                    ${active
-                                    ? `border-white/20 bg-white/10 ${color}`
-                                    : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'
-                                }`}
-                            >
-                                {label}
-                            </a>
-                        )
-                    })}
-                </div>
-
-                {/* Liste */}
-                <div className="flex flex-col gap-3">
-                    {matches.length === 0 ? (
-                        <div className="text-center py-20 text-slate-500">
-                            Aucun match à venir pour ce jeu.
-                        </div>
-                    ) : (
-                        matches.map((match) => (
-                            <MatchCard key={match.id} match={match} />
-                        ))
-                    )}
-                </div>
+            {/* Header */}
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold tracking-tight text-white">
+                    Matchs à venir
+                </h1>
+                <p className="text-slate-400 mt-1 text-sm">
+                    {matches.length} match{matches.length > 1 ? 's' : ''} programmé{matches.length > 1 ? 's' : ''}
+                </p>
             </div>
-        </main>
+
+            {/* Filtres */}
+            <div className="flex flex-wrap gap-2 mb-6">
+                {GAMES.map(({ slug, label, color }) => {
+                    const active = (game ?? '') === slug
+                    return (
+                        <a
+                            key={slug}
+                            href={slug ? `/matches?game=${slug}` : '/matches'}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all
+                                ${active
+                                ? `border-white/20 bg-white/10 ${color}`
+                                : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'
+                            }`}
+                        >
+                            {label}
+                        </a>
+                    )
+                })}
+            </div>
+
+            {/* Liste */}
+            <div className="flex flex-col gap-3">
+                {matches.length === 0 ? (
+                    <div className="text-center py-20 text-slate-500">
+                        Aucun match à venir pour ce jeu.
+                    </div>
+                ) : (
+                    matches.map((match) => (
+                        <MatchCard key={match.id} match={match} />
+                    ))
+                )}
+            </div>
+        </div>
     )
 }

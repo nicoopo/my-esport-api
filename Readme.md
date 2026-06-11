@@ -213,9 +213,22 @@ Jeux supportés : `lol`, `csgo`, `dota2`, `valorant`, `rl`
 │       └── PandaScoreService.php
 ├── frontend/                   # Next.js
 │   ├── Dockerfile
+│   ├── next.config.ts
+│   ├── components/
+│   │   └── Navbar.tsx          # Navbar sticky avec liens Live
+│   ├── types/
+│   │   └── match.ts            # Types TypeScript (Match, Team, Stream...)
 │   └── app/
-│       ├── page.tsx
+│       ├── layout.tsx          # Layout global avec Navbar
+│       ├── page.tsx            # Page d'accueil
 │       ├── matches/
+│       │   ├── page.tsx        # Liste des matchs à venir (filtres par jeu)
+│       │   └── [id]/
+│       │       └── page.tsx    # Détail d'un match
 │       └── admin/
+│           ├── layout.tsx      # Layout admin avec sidebar
+│           ├── page.tsx        # Dashboard (stats, répartition par jeu/tier)
+│           └── matches/
+│               └── page.tsx    # Tableau matchs upcoming/running/past
 └── .env
 ```
